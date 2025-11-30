@@ -16,6 +16,35 @@ MAX_RETRY=30	    # 定义检查最大次数
 WAIT_INTERVAL=1   # 每次等待间隔（秒）
 password_found=false
 
+# Harbor
+while true; do
+    read -p "请输入 Harbor 域名或 IP (例如 harbor.example.com 或 192.168.1.1): " HARBOR_DOMAIN
+
+    # 如果为空，不允许
+    if [ -z "$HARBOR_DOMAIN" ]; then
+        echo "❌ 输入为空，请重新输入。"
+        continue
+    fi
+
+    # 二次确认
+    while true; do
+        read -p "你输入的是 [$HARBOR_DOMAIN]，是否确认？(y/n): " yn
+        case $yn in
+            [Yy] )
+                echo "✔ Harbor 域名已确认：$HARBOR_DOMAIN"
+                break 2   # 跳出两层循环
+                ;;
+            [Nn] )
+                echo "❗ 请重新输入 Harbor 域名。"
+                break     # 仅跳出确认循环，继续重新输入
+                ;;
+            * )
+                echo "⚠ 输入无效，请按 y 或 n。"
+                ;;
+        esac
+    done
+done
+
 # ================== 主流程 ==================
 main() {
     check_rtc
@@ -26,7 +55,7 @@ main() {
     install_jenkins
     config_docker
 
-    sudo docker restart jenkins
+    sudo systemctl restart docker
 }
 # ================== 函数区 ===================
 check_rtc() {
@@ -127,7 +156,13 @@ config_docker() {
     echo "Jenkins 安装 docker.io"
     sudo docker exec -u 0 -it jenkins apt-get update
     sudo docker exec -u 0 -it jenkins apt-get install -y docker.io
-    
+
+    sudo tee /etc/docker/daemon.json > /dev/null <<EOF
+{
+  "insecure-registries": ["$HARBOR_DOMAIN"]
+}
+EOF
+
     # ====== 等待 Jenkins 初始化并生成初始管理员密码 ======
     echo "等待 Jenkins 初始化并生成初始管理员密码..."
     for i in $(seq 1 $MAX_RETRY); do
@@ -150,4 +185,3 @@ config_docker() {
 
 # ============ 调用主流程 ============
 main
-
