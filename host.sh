@@ -49,7 +49,7 @@ main() {
     sudo systemctl restart docker
     echo "docker 重启成功"
 
-    #echo "查看日志：sudo docker logs -f harbor-webhook"
+    echo "查看日志：sudo docker logs -f harbor-webhook"
     #echo "查看镜像端口："
     #echo "${HOSTNAME}/db"
     #echo "${HOSTNAME}/db?name="
@@ -265,6 +265,11 @@ app.post("/webhook", (req, res) => {
     if (event.type === "PUSH_ARTIFACT") {
       const repo = event.event_data.repository.repo_full_name;
       const tag = event.event_data.resources[0].tag || "latest";
+
+      if (tag.startsWith("sha256:")) {
+          //console.log("忽略 digest 镜像");
+          return;
+      }
 
       // 完整镜像
       const fullImage = `${HARBOR_DOMAIN}/${repo}:${tag}`;
