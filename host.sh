@@ -286,20 +286,29 @@ app.post("/webhook", (req, res) => {
       exec(`docker pull ${fullImage}`, (err) => {
             if (err) return console.error("拉取失败:", err);
 
-            exec(`docker stop ${appContainer} || true && docker rm ${appContainer} || true`, () => {
-                const cmd = `
-                    docker run -d --restart=always \
-                        --name ${appContainer} \
-                        -p ${servicePort}:${servicePort} \
-                        ${shortImage}
-                `;
-                exec(cmd, (err2) => {
-                    if (err2) return console.error("容器启动失败:", err2);
+            console.log(`✔ 拉取成功 → ${fullImage}`);
 
-		    console.log(`✔ 镜像成功启动: ${appContainer}（服务端口 ${servicePort}）`);
+            // 打短标签（关键步骤）
+            exec(`docker tag ${fullImage} ${shortImage}`, () => {
 
-                    exec(`docker rmi -f ${fullImage}`, () => {
-                        console.log("已删除带域名镜像:", fullImage);
+                // 停止并删除旧容器
+                exec(`docker stop ${appContainer} || true && docker rm ${appContainer} || true`, () => {
+
+                    // 用短名字启动容器
+                    const cmd = `
+                        docker run -d --restart=always \
+                            --name ${appContainer} \
+                            -p ${servicePort}:${servicePort} \
+                            ${shortImage}
+                    `;
+
+                    exec(cmd, (err2) => {
+                        if (err2) return console.error("容器启动失败:", err2);
+
+                        console.log(`✔ 容器 ${appContainer} 使用短镜像 ${shortImage} 启动成功（服务端口 ${servicePort}）`);
+
+                        // 删除长标签（可选）
+                        exec(`docker rmi ${fullImage} || true`, () => {});
                     });
                 });
             });
