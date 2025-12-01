@@ -5,3 +5,5 @@ bash <(curl -fsSL https://raw.githubusercontent.com/GLTechnologies/install-scrip
 bash <(curl -fsSL https://raw.githubusercontent.com/GLTechnologies/install-script/main/jenkins.sh)
 
 bash <(curl -fsSL https://raw.githubusercontent.com/GLTechnologies/install-script/main/harbor.sh)
+
+bash <(curl -fsSL https://raw.githubusercontent.com/GLTechnologies/install-script/main/harbor.sh)
