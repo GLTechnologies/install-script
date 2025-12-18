@@ -1,5 +1,7 @@
 # install-script
 
+bash <(curl -fsSL https://raw.githubusercontent.com/GLTechnologies/install-script/main/all.sh)
+
 bash <(curl -fsSL https://raw.githubusercontent.com/GLTechnologies/install-script/main/gitlab.sh)
 
 bash <(curl -fsSL https://raw.githubusercontent.com/GLTechnologies/install-script/main/jenkins.sh)
