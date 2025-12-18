@@ -1407,7 +1407,7 @@ gitlab_menu_loop() {
 # ============================== 主流程 ==============================
 
 main() {
-    #check_root
+    check_root
     # 同步RTC
     syncRTC
     check_debug_mode "$@"
